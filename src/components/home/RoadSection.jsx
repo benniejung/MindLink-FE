@@ -19,9 +19,11 @@ const RoadImage = styled(motion.img)`
   position: absolute;
   z-index: 0;
 
-  top: ${({ top }) => top || "0"};
+  /* top 속성 대신 transform으로 이동하여 리플로우 방지 */
+  transform: translateY(${({ top }) => top || "0"});
   left: ${({ left }) => left || "0"};
   right: ${({ right }) => right || "auto"};
+  will-change: transform, opacity; /* GPU Hint 추가 */
 `;
 
 const ContentWrapper = styled.div`
@@ -47,7 +49,9 @@ const RoadSection = ({ children, top = "0", left = "0", right = "auto" }) => (
       right={right}
       initial={{ y: 0, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1 }}
+      viewport={{ once: true }}
       transition={{ duration: 0.8, ease: "easeOut" }}
+      decoding="async"
     />
     <ContentWrapper>{children}</ContentWrapper>
   </RoadWrapper>

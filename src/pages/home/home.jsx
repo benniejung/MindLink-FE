@@ -1,10 +1,8 @@
 import * as S from "../../styles/home/home";
 import FeatureCard from "../../components/home/FeatureCard";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import Header from "../../components/header/header";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { motion } from "framer-motion";
 import FeatureItem from "../../components/home/FeatureItem";
 import RoadSection from "../../components/home/RoadSection";
 // image
@@ -29,49 +27,50 @@ const Home = () => {
   const secondPageRef = useRef();
   const thirdPageRef = useRef();
   const fourthPageRef = useRef();
-  const [currentPage, setCurrentPage] = useState(1);
-
+  const currentPageRef = useRef(1); // State 대신 Ref로 페이지 추적하여 리렌더링 방지
   const navigate = useNavigate();
-  const [stateUpladButton, setStateUploadButton] = useState(false);
 
   // 자동으로 페이지 내려가도록 하는 메서드
   useEffect(() => {
     const interval = setInterval(() => {
       goToNextPage();
-    }, 4000); // 7초마다
+    }, 4000); // 4초마다
 
     return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
-  }, [currentPage]); // currentPage가 바뀔 때마다 타이머 초기화 (선택 사항)
+  }, []); // 의존성 배열 비움 (ref 사용하므로 재실행 불필요)
 
   // 다음 페이지로 이동하는 함수
   const goToNextPage = () => {
     let nextPageRef;
     let nextPage;
 
-    if (currentPage === 1) {
+    const current = currentPageRef.current; // Ref에서 현재 값 읽기
+
+    if (current === 1) {
       //1->2
       nextPageRef = secondPageRef;
       nextPage = 2;
-    } else if (currentPage === 2) {
+    } else if (current === 2) {
       //2->3
       nextPageRef = thirdPageRef;
       nextPage = 3;
-    } else if (currentPage === 3) {
+    } else if (current === 3) {
       //3->4
       nextPageRef = fourthPageRef;
       nextPage = 4;
     } else {
-      nextPageRef = firstPageRef; //3->1
+      nextPageRef = firstPageRef; //4->1
       nextPage = 1;
     }
 
-    const topOffset = nextPageRef.current.offsetTop;
-    window.scrollTo({
-      top: topOffset,
-      behavior: "smooth",
-    });
-
-    setCurrentPage(nextPage);
+    if (nextPageRef && nextPageRef.current) {
+      const topOffset = nextPageRef.current.offsetTop;
+      window.scrollTo({
+        top: topOffset,
+        behavior: "smooth",
+      });
+      currentPageRef.current = nextPage; // Ref 값 업데이트 (리렌더링 X)
+    }
   };
 
   // list 페이지로 이동
@@ -85,7 +84,6 @@ const Home = () => {
       {/* <S.RoadImg src={ROAD} alt="도로" /> */}
       {/* 첫번째 페이지 */}
       <S.HomeFirstPage ref={firstPageRef}>
-        {" "}
         <Header />
         <S.HeaderBottomSection>
           <S.Cloud src={Cloud}></S.Cloud>
@@ -124,7 +122,6 @@ const Home = () => {
             position="right"
           />
         </RoadSection>
-
         <S.ArrowDownButton onClick={goToNextPage}>
           <S.ArrowDownImg src={ARROWDOWN} alt="아래로 이동" />
         </S.ArrowDownButton>

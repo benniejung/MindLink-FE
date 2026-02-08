@@ -3,48 +3,28 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import * as Q from "../../../styles/quiz/quiz.jsx";
 import Modal from "../modal/modal.jsx";
-import LISTENUP from "../../../assets/images/quiz/listenup.svg";
+import LISTENUP from "../../../assets/images/quiz/listenup.webp";
 import AnswerOptionList from "./AnswerOptionList.jsx";
 import { speak, stop } from "../../../utils/tts.jsx";
 import usePost from "../../../hooks/usePost.jsx";
 import usePatch from "../../../hooks/usePatch.jsx";
 import Loading from "./Loading.jsx";
 import { useTTS } from "../../../contexts/TTSContext.jsx";
+import { listenUpMockData } from "../../../mocks/quiz/listenUpMockData.js";
 
 export default function ListenUp() {
+  console.log("ListenUp Rendered");
+  const USE_MOCK = true; // 목데이터 사용 여부 플래그 (실 서버 연동 시 false로 변경)
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [correctAnswer, setCorrectAnswer] = useState("");
-
-  const [currentQuizNum, setCurrentQuizNum] = useState(1);
-  const [correctNum, setCorrectNum] = useState(0);
-
-  // 드래그앤드롭 상태변수들
-  const [dragList, setDragList] = useState([]); // 드래그 가능한 단어들
-  const [droppedList, setDroppedList] = useState([]); // 드롭된 정답 슬롯
-  const dragItemRef = useRef(null); // 현재 드래그 중인 단어 인덱스
-  const [hiddenIndices, setHiddenIndices] = useState([]);
-
   const { id: graphId, mode: modeName } = useParams(); // 그래프 id값 가져오기
   const { post, loading, error } = usePost(`/quiz/${graphId}?mode=${modeName}`); // 퀴즈 api 불러오기
   const { patch } = usePatch();
-  const [data, setData] = useState(null);
-
-  // 통신 연결 시 주석 해제
-  useEffect(() => {
-    // graphId, modeName이 있을 때만 요청
-    if (graphId && modeName) {
-      post().then(setData).catch(console.error);
-    }
-  }, [graphId, modeName]);
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
+  const [data, setData] = useState(USE_MOCK ? listenUpMockData : null);
   const quizList = data?.data?.quizzes?.quizzes || [];
-  useEffect(() => {
+
+  
+/*   useEffect(() => {
+    // 문제번호가 바뀔때마다 재렌더링
     if (quizList.length > 0) {
       // 문제 받아오면 초기화
       const currentQuestion = quizList[currentQuizNum - 1];
@@ -52,9 +32,43 @@ export default function ListenUp() {
       setDroppedList(Array(currentQuestion.answer.length).fill("")); // 빈칸 초기화
     }
   }, [data, currentQuizNum]);
+ */
+useEffect(() => {
+  if (graphId && modeName) {
+        // 여기서 바로 첫 문제 세팅해버리기!
+        const firstQuiz = quizList[0];
+        setDragList(firstQuiz.shuffled);
+        setDroppedList(Array(firstQuiz.answer.length).fill(""));
+  }
+}, [graphId, modeName]);
+
+
+  const [isOpen, setIsOpen] = useState(false); // 정답 모달 상태
+  const [isCorrect, setIsCorrect] = useState(false); // 정답 여부
+  const [correctAnswer, setCorrectAnswer] = useState(""); // 정답
+
+  const [currentQuizNum, setCurrentQuizNum] = useState(1); // 현재 문제 번호
+  const [correctNum, setCorrectNum] = useState(0); // 정답 개수
+
+  // 드래그앤드롭 상태변수들
+  const dragItemRef = useRef(null); // 현재 드래그 중인 단어 인덱스
+  const [dragList, setDragList] = useState([]); // 드래그 가능한 단어들
+  const [droppedList, setDroppedList] = useState([]); // 드롭된 정답 슬롯
+
+
+/*   useEffect(() => {
+    if (USE_MOCK) return;
+    if (graphId && modeName) {
+      post().then(setData).catch(console.error);
+    }
+  }, [graphId, modeName]);
+ */
+
+
 
   const handleDragStart = (index) => {
     dragItemRef.current = index;
+    console.log(dragItemRef.current);
   };
 
   const handleDrop = (dropIndex) => {
@@ -157,7 +171,7 @@ export default function ListenUp() {
 
   return (
     <Q.QnaModeLayout>
-      {loading ? (
+      {loading && !USE_MOCK ? (
         <Q.LoadingContainer>
           <Loading />
         </Q.LoadingContainer>

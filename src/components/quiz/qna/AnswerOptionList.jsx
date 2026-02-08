@@ -9,6 +9,7 @@ export default function AnswerOptionList({
   onDragStart,
   mode,
 }) {
+  console.log("AnswerOptionList Rendered");
   return (
     <Q.AswerOptionItemContainer $mode={mode}>
       {options.map((word, idx) =>

@@ -10,7 +10,6 @@ import ReactFlow, {
   ReactFlowProvider,
   MarkerType,
   getStraightPath,
-  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useMemo } from "react";
@@ -69,9 +68,7 @@ export default function Connect() {
 
   const quizList = data?.data?.quizzes?.quizList || [];
   const knowledgeGraph = data?.data?.quizzes?.knowledgeGraph;
-  //const questionTargetId = quizList[currentQuizNum - 1]?.questionTargetId;
-  // const nodeData = knowledgeGraph.nodes;
-
+  
   // 노드 처리
   const processedNodes = useMemo(() => {
     if (!knowledgeGraph) return [];
@@ -127,186 +124,6 @@ export default function Connect() {
     setSelectedIdx(idx);
   };
 
-  /*   useEffect(() => {
-    if (!knowledgeGraph) return;
-
-    const nodeData = knowledgeGraph.nodes;
-    const edgeData = knowledgeGraph.edges;
-
-    const width = 1000;
-    const height = 800;
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    const questionTargetId = quizList[currentQuizNum - 1]?.questionTargetId;
-
-    const simNodes = nodeData.map((node) => ({
-      ...node,
-      label: node.id === questionTargetId ? "?" : node.label,
-    }));
-
-    const simLinks = edgeData.map((edge) => ({
-      source: edge.source,
-      target: edge.target,
-    }));
-
-    const simulation = forceSimulation(simNodes)
-      .force("charge", forceManyBody().strength(-100))
-      .force("center", forceCenter(centerX, centerY))
-      .force(
-        "link",
-        forceLink(simLinks)
-          .id((d) => d.id)
-          .distance((link) => {
-            const source = nodeData.find((n) => n.id === link.source);
-            const target = nodeData.find((n) => n.id === link.target);
-            const levelGap = Math.abs(
-              (source?.level ?? 1) - (target?.level ?? 1)
-            );
-            return 700 + levelGap * 200;
-          })
-      )
-      .force(
-        "collide",
-        forceCollide().radius((d) => {
-          const style = levelStyles[d.level] || levelStyles[1];
-          const nodeSize = parseFloat(style.size) || 50;
-          return nodeSize / 2 + 100;
-        })
-      )
-      .stop();
-
-    const rootNode = simNodes.find((n) => n.level === 0 && n.label !== "?");
-    if (rootNode) {
-      rootNode.fx = centerX;
-      rootNode.fy = centerY;
-    }
-
-    for (let i = 0; i < 300; ++i) simulation.tick();
-
-    const styledNodes = simNodes.map((node) => {
-      const levelStyle = levelStyles[node.level] || levelStyles[1];
-      const groupStyle = groupStyles[node.group] || {};
-      const backgroundColor = colors[groupStyle.background] || levelStyle.color;
-
-      const isQuestionNode = node.label === "?";
-      const fontSize = isQuestionNode ? 50 : node.level === 0 ? 35 : 25;
-
-      return {
-        id: node.id,
-        type: "custom",
-        data: {
-          label: node.label,
-          level: node.level,
-          group: node.group,
-          includeSentence: node.includeSentence,
-          image: node.image,
-        },
-        position: { x: node.x, y: node.y },
-        style: {
-          width: levelStyle.size,
-          height: levelStyle.size,
-          background: backgroundColor,
-          color: isQuestionNode ? "#ff0000" : groupStyle.color || "#333",
-          borderRadius: "50%",
-          border: isQuestionNode ? "4px dashed #ff0000" : "2px solid #f89d36",
-          fontWeight: isQuestionNode ? 900 : "bold",
-          fontSize: fontSize,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "Ownglyph_meetme-Rg",
-        },
-        width: parseFloat(levelStyle.size),
-        height: parseFloat(levelStyle.size),
-      };
-    });
-
-    const edgeColor = "#f89d36";
-    const labelColor = "#fff8d6";
-    const strokeColor = "#f89d36";
-
-    const styledEdges = edgeData.map((edge) => {
-      const sourceNode = simNodes.find((n) => n.id === edge.source);
-      const targetNode = simNodes.find((n) => n.id === edge.target);
-
-      const dx = targetNode.x - sourceNode.x;
-      const dy = targetNode.y - sourceNode.y;
-      // const angle = Math.atan2(dy, dx);
-
-      const sourceStyle = levelStyles[sourceNode.level] || levelStyles[1];
-      const targetStyle = levelStyles[targetNode.level] || levelStyles[1];
-
-      const sourceRadius = parseFloat(sourceStyle.size) / 2 || 40;
-      const targetRadius = parseFloat(targetStyle.size) / 2 || 40;
-
-      const sourceCenter = {
-        x: sourceNode.x + sourceRadius,
-        y: sourceNode.y + sourceRadius,
-      };
-      const targetCenter = {
-        x: targetNode.x + targetRadius,
-        y: targetNode.y + targetRadius,
-      };
-
-      const angle = Math.atan2(
-        targetCenter.y - sourceCenter.y,
-        targetCenter.x - sourceCenter.x
-      );
-
-      const adjustedSource = {
-        x: sourceCenter.x + sourceRadius * Math.cos(angle),
-        y: sourceCenter.y + sourceRadius * Math.sin(angle),
-      };
-      const adjustedTarget = {
-        x: targetCenter.x - targetRadius * Math.cos(angle),
-        y: targetCenter.y - targetRadius * Math.sin(angle),
-      };
-      const [path] = getStraightPath({
-        sourceX: adjustedSource.x,
-        sourceY: adjustedSource.y,
-        targetX: adjustedTarget.x,
-        targetY: adjustedTarget.y,
-      });
-      return {
-        id: `e${edge.source}-${edge.target}`,
-        source: edge.source,
-        target: edge.target,
-        type: "straight",
-        label: edge.label,
-        data: { path },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: edgeColor,
-        },
-        style: {
-          strokeWidth: 3,
-          stroke: edgeColor,
-          strokeDasharray: "0",
-          opacity: 1,
-        },
-        labelBgStyle: {
-          fill: labelColor,
-          fillOpacity: 1,
-          stroke: strokeColor,
-          strokeWidth: 0.5,
-          rx: 4,
-          ry: 4,
-        },
-        labelStyle: {
-          fontWeight: 600,
-          fontSize: 20,
-          fill: colors.black,
-          fontFamily: "Ownglyph_meetme-Rg",
-          textAlign: "center",
-        },
-      };
-    });
-
-    setNodes(styledNodes);
-    setEdges(styledEdges);
-  }, [knowledgeGraph, currentQuizNum]);
- */
   useEffect(() => {
     if (!knowledgeGraph) return;
 
@@ -353,12 +170,6 @@ export default function Connect() {
           const style = levelStyles[d.level] || levelStyles[1];
           const nodeSize = parseFloat(style.size) || 50;
           return nodeSize / 2 + 100;
-          // const levelStyle = levelStyles[d.level] || levelStyles[1];
-          // const baseSize = parseFloat(levelStyle.size) || 80;
-          // const fontSize = levelStyle.fontSize || 20;
-          // const estimatedTextWidth = d.label.length * fontSize * 0.6; // 실제 텍스트 너비 추정
-
-          // return Math.max(baseSize / 2, estimatedTextWidth / 2) + 50; // 충분한 여유 padding
         })
       )
       .stop();
@@ -441,7 +252,6 @@ export default function Connect() {
     }));
 
     setNodes(styledNodes);
-    //setEdges(styledEdges);
 
     // fitView 호출하여 그래프를 처음에 맞게 보여주기
     const questionNode = styledNodes.find((node) => node.label === "?");
@@ -463,7 +273,6 @@ export default function Connect() {
       const dx = targetNode.x - sourceNode.x;
       const dy = targetNode.y - sourceNode.y;
       const angle = Math.atan2(dy, dx);
-      const offset = 40;
 
       const sourceStyle = levelStyles[sourceNode.level] || levelStyles[1];
       const targetStyle = levelStyles[targetNode.level] || levelStyles[1];

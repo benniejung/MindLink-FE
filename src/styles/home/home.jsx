@@ -66,23 +66,7 @@ export const RoadImg = styled.img`
   object-fit: contain;
   pointer-events: none;
   transform: translateX(0);
-
-  @media screen and (max-width: 768px) {
-    top: 40%;
-  }
-
-  @media screen and (max-width: 480px) {
-    top: 45%;
-  } */
-
-  /* position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 300vh; // 길 이미지 높이 설정 (스크롤 전체 범위와 맞춤)
-  object-fit: cover;
-  z-index: -1;
-  pointer-events: none; */
+   */
 `;
 // 첫번째 페이지
 export const HomeFirstPage = styled.div`
@@ -123,6 +107,7 @@ export const Cloud = styled.img`
   top: -6vh;
   right: -10vw;
   animation: ${drift} 5s ease-in-out infinite;
+  will-change: transform;
 `;
 
 // 로고 아이콘1(오)
@@ -132,6 +117,7 @@ export const LogoIcon1 = styled.img`
   top: 8vw;
   right: 20vh;
   animation: ${float} 2s ease-in-out infinite;
+  will-change: transform;
 `;
 
 // 로고 아이콘2(왼)
@@ -141,6 +127,7 @@ export const LogoIcon2 = styled.img`
   top: 19vw;
   left: 15vh;
   animation: ${float} 2s ease-in-out infinite;
+  will-change: transform;
 `;
 
 export const LogoText = styled.p`
@@ -197,6 +184,7 @@ export const ArrowDownButton = styled.button`
   transform: translateX(-50%);
   z-index: 20;
   animation: ${blink} 1.5s infinite ease-in-out;
+  will-change: opacity;
   background: none;
   border: none;
   cursor: pointer;
