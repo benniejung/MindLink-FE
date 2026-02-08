@@ -104,7 +104,7 @@ const Home = () => {
         {/* <RoadSection top="20vh" left="6.6vw" /> */}
       </S.HomeFirstPage>
       {/* 두번째 페이지 */}
-      <S.HomeSecondPage ref={secondPageRef}>
+ {/*      <S.HomeSecondPage ref={secondPageRef}>
         <RoadSection top="-14.5vh">
           <FeatureItem
             img={FEATURE1}
@@ -125,9 +125,9 @@ const Home = () => {
         <S.ArrowDownButton onClick={goToNextPage}>
           <S.ArrowDownImg src={ARROWDOWN} alt="아래로 이동" />
         </S.ArrowDownButton>
-      </S.HomeSecondPage>
+      </S.HomeSecondPage> */}
       {/* 세번째 페이지 */}
-      <S.HomeThirdPage ref={thirdPageRef}>
+{/*       <S.HomeThirdPage ref={thirdPageRef}>
         <RoadSection top="-114vh">
           <FeatureItem
             img={FEATURE2}
@@ -174,7 +174,7 @@ const Home = () => {
         <S.ArrowDownButton onClick={goToNextPage}>
           <S.ArrowDownImg src={ARROWDOWN} alt="처음으로" />
         </S.ArrowDownButton>
-      </S.HomeFourthPage>
+      </S.HomeFourthPage> */}
     </S.HomeLayout>
   );
 };
