@@ -41,18 +41,6 @@ const ContentWrapper = styled.div`
 
 const RoadSection = ({ children, top = "0", left = "0", right = "auto" }) => (
   <RoadWrapper>
-    <RoadImage
-      src={ROAD}
-      alt="도로 이미지"
-      top={top}
-      left={left}
-      right={right}
-      initial={{ y: 0, opacity: 0 }}
-      whileInView={{ y: 0, opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      decoding="async"
-    />
     <ContentWrapper>{children}</ContentWrapper>
   </RoadWrapper>
 );

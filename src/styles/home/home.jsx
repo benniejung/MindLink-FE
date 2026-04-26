@@ -1,24 +1,12 @@
 import styled from "styled-components";
 import colors from "../common/colors";
-import MAINBG from "../../assets/images/home/bg.png";
-//import MAINBG from "../../assets/images/home/mainbg.svg";
-
 import { keyframes } from "styled-components";
-import { style } from "framer-motion/client";
-
-// import MAINBG from "../../assets/images/home/mainbg.svg";
 
 // 위아래로 떠다니는 애니메이션
 const float = keyframes`
   0% { transform: translateY(0); }
   50% { transform: translateY(-15px); }
   100% { transform: translateY(0); }
-`;
-
-// 깜빡이는 애니메이션
-const sparkle = keyframes`
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
 `;
 
 const blink = keyframes`
@@ -30,30 +18,28 @@ const blink = keyframes`
   }
 `;
 
-// 좌우로 살짝 움직이는 애니메이션
-const drift = keyframes`
-  0% { transform: translateX(0); }
-  50% { transform: translateX(15px); }
-  100% { transform: translateX(0); }
-`;
-
 export const HomeLayout = styled.div`
   width: 100%;
-  height: 400vh;
-  overflow: hidden; // 스크롤 안 되도록 막기
+  min-height: 400vh;
+  overflow-x: hidden;
   scroll-behavior: smooth;
-  position: relative; // 내부 요소 기준 포지셔닝을 위해 필요
+  position: relative;
+
+  @media (max-width: 768px) {
+    min-height: auto;
+  }
 `;
 export const BackgroundImg = styled.img`
-  position: absolute; // 스크롤 내리면 배경 따라 내려가도록
-  top: -12vh;
-  left: 0;
-  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
   height: auto;
   min-height: 100%;
   z-index: -1;
-  object-fit: contain; // 비율 유지 + 꽉 채우기
   display: block;
+  pointer-events: none;
 `;
 
 export const RoadImg = styled.img`
@@ -71,81 +57,94 @@ export const RoadImg = styled.img`
 // 첫번째 페이지
 export const HomeFirstPage = styled.div`
   position: relative;
-  /* background: url(${MAINBG}) no-repeat center center;
-  background-size: cover; // 배경 이미지를 꽉 채움
-  background-attachment: fixed; // 배경이 뷰포트 기준으로 고정 */
-
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 1rem;
 `;
 
 export const HeaderBottomSection = styled.div`
   position: relative;
-  z-index: 10; // 구름보다 앞에
+  z-index: 10;
   width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   justify-content: center;
+  align-items: center;
+  padding: clamp(1rem, 3vw, 2rem) 0 clamp(5rem, 8vw, 6rem);
+
+  @media (max-width: 768px) {
+    align-items: flex-start;
+    padding-top: 4rem;
+  }
 `;
 
 export const MainLogoAndButton = styled.div`
-  // background-color:red;
-  width: 60%;
-  position: relative; // 부모
+  width: min(100%, 860px);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
+  gap: clamp(0.75rem, 1.5vw, 1rem);
+  padding: clamp(1rem, 2vw, 2rem);
 
-// 구름
-export const Cloud = styled.img`
-  width: 30vw; // 원하는 크기로 조정
-  position: absolute; // 필요 시 위치 지정
-  top: -6vh;
-  right: -10vw;
-  animation: ${drift} 5s ease-in-out infinite;
-  will-change: transform;
+  @media (max-width: 768px) {
+    width: 100%;
+    padding-top: 2rem;
+  }
 `;
 
 // 로고 아이콘1(오)
 export const LogoIcon1 = styled.img`
-  width: 8%; // 원하는 크기로 조정 가능
+  width: clamp(40px, 7vw, 76px);
   position: absolute;
-  top: 8vw;
-  right: 20vh;
+  top: clamp(2rem, 7vw, 5.5rem);
+  right: clamp(0.75rem, 8vw, 7rem);
   animation: ${float} 2s ease-in-out infinite;
   will-change: transform;
+
+  @media (max-width: 768px) {
+    top: 1.5rem;
+    right: 0.25rem;
+  }
 `;
 
 // 로고 아이콘2(왼)
 export const LogoIcon2 = styled.img`
-  width: 9%; // 원하는 크기로 조정 가능
+  width: clamp(48px, 8vw, 88px);
   position: absolute;
-  top: 19vw;
-  left: 15vh;
+  top: clamp(7rem, 17vw, 12rem);
+  left: clamp(0.5rem, 5vw, 5rem);
   animation: ${float} 2s ease-in-out infinite;
   will-change: transform;
+
+  @media (max-width: 768px) {
+    top: 7.75rem;
+    left: 0;
+  }
 `;
 
 export const LogoText = styled.p`
-  margin-top: 10vw;
-  margin-bottom: 1.2vw;
+  margin-top: clamp(4rem, 10vw, 7rem);
+  margin-bottom: 0;
   color: ${colors.brown};
   text-align: center;
-  // text-shadow: 0px 4px 5px rgba(0, 0, 0, 0.1);
   font-family: "Ownglyph_meetme-Rg";
-  font-size: 2vw;
+  font-size: clamp(1.4rem, 3vw, 3rem);
   font-style: normal;
   font-weight: 400;
-  line-height: normal;
+  line-height: 1.3;
+
+  @media (max-width: 768px) {
+    max-width: 14ch;
+  }
 `;
 
 export const LOGO = styled.img`
-  width: 24vw;
-
+  width: min(100%, clamp(240px, 26vw, 460px));
   display: block;
 `;
 
@@ -153,21 +152,27 @@ export const UploadPdfButton = styled.button`
   background: ${colors.orange};
   color: #fff;
   border: none;
-  border-radius: 2vw;
-  padding: 1.3vw 7.5vw;
-  font-size: 1.8vw;
+  border-radius: 999px;
+  padding: clamp(0.95rem, 1.6vw, 1.2rem) clamp(2rem, 7vw, 5.5rem);
+  font-size: clamp(1.1rem, 3vw, 3rem);
   font-family: "Ownglyph_meetme-Rg";
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.7vw;
+  justify-content: center;
+  width: min(100%, 430px);
   cursor: pointer;
-  margin-top: 2vw;
-  box-shadow: 0 0.2vw 0.5vw rgba(0, 0, 0, 0.08);
+  margin-top: clamp(0.75rem, 2vw, 1.5rem);
+  box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.12);
   transition: background 0.2s;
+  text-align: center;
 
   &:hover {
-    background: #ffa32d; // 원하는 색상으로 변경
+    background: #ffa32d;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
   }
 `;
 
@@ -178,8 +183,8 @@ export const PencilImg = styled.img`
 `;
 
 export const ArrowDownButton = styled.button`
-  position: fixed; // 고정
-  bottom: 2vw;
+  position: absolute;
+  bottom: clamp(1rem, 2.5vw, 2rem);
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
@@ -191,21 +196,23 @@ export const ArrowDownButton = styled.button`
 `;
 
 export const ArrowDownImg = styled.img`
-  width: 4.5vw;
-  height: 5vh;
+  width: clamp(36px, 4vw, 56px);
+  height: auto;
 `;
 
 // 두번째 페이지
 export const HomeSecondPage = styled.div`
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; // 내용이 넘치지 않도록
+  overflow: hidden;
   box-sizing: border-box;
   margin-top: 0;
   position: relative;
+  padding: 0 1rem;
 `;
 
 export const FeatureCardWrapper = styled.div`
@@ -229,20 +236,28 @@ export const FeatureCardGrid = styled.div`
 
 // 두번째 페이지 - 기능 설명 카드
 export const FeatureCardLayout = styled.div`
-  width: 28vw;
+  width: min(28vw, 540px);
   height: auto;
   flex-shrink: 0;
-  border-radius: 40px;
+  border-radius: 32px;
   background: #fff;
   display: flex;
   flex-direction: ${({ isWide }) => (isWide ? "row" : "column")};
-  padding: 3rem;
+  padding: clamp(1.4rem, 3vw, 3rem);
   align-items: center;
-  align-self: ${({ isWide }) => (isWide ? "center" : "unset")}; // 가운데 정렬
+  align-self: ${({ isWide }) => (isWide ? "center" : "unset")};
   gap: 1.2rem;
   overflow: hidden;
   box-sizing: border-box;
   box-shadow: 5px 5px 5px 3px rgba(0, 0, 0, 0.5);
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    border-radius: 24px;
+  }
 `;
 
 export const FeatureImgBox = styled.div`
@@ -261,12 +276,12 @@ export const FeatureTextBox = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.8vw;
+  gap: clamp(0.55rem, 0.8vw, 0.9rem);
 `;
 export const FeatureSubtitleText = styled.div`
   color: #7d4d00;
   font-family: "Noto Sans";
-  font-size: 1vw;
+  font-size: clamp(1rem, 1.8vw, 1.8rem);
   font-style: normal;
   font-weight: 600;
   line-height: normal;
@@ -275,7 +290,7 @@ export const FeatureSubtitleText = styled.div`
 export const FeatureTitleText = styled.div`
   color: #000;
   font-family: "Noto Sans";
-  font-size: 1.25vw;
+  font-size: clamp(1.2rem, 2.2vw, 2.2rem);
   font-style: normal;
   font-weight: 600;
   line-height: normal;
@@ -289,21 +304,29 @@ export const Highlight = styled.span`
 export const FeatureDescriptionText = styled.div`
   color: #000;
   font-family: "Noto Sans";
-  font-size: 0.9vw;
+  font-size: clamp(1rem, 2vw, 2rem);
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  white-space: pre-line; // 줄바꿈
-  word-break: break-word; // 긴 단어가 넘칠 경우 줄바꿈
+  white-space: pre-line;
+  word-break: break-word;
   overflow-wrap: break-word;
 `;
 
 // FeatureItem.jsx
 export const FeatureItemContainer = styled.div`
-  width: 70%;
+  width: min(70%, 1100px);
   height: auto;
   position: relative;
   z-index: 1;
+
+  @media (max-width: 1024px) {
+    width: min(82%, 760px);
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 export const FeatureCardContainer = styled.div`
   width: 100%;
@@ -314,8 +337,12 @@ export const FeatureCardContainer = styled.div`
   gap: 1.5rem;
   position: relative;
   justify-content: space-between;
-  //margin-bottom: 21vw;
   scroll-margin-top: 20vh;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    justify-content: center;
+  }
 `;
 
 export const StepP = styled.div`
@@ -331,21 +358,24 @@ export const StepP = styled.div`
 // 세번째 페이지
 export const HomeThirdPage = styled.div`
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; // 내용이 넘치지 않도록
+  overflow: hidden;
+  padding: 0 1rem;
 `;
 
 export const HomeFourthPage = styled.div`
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
+  padding: 0 1rem;
 `;
 
 export const RoadSection = styled.div`
