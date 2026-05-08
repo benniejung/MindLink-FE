@@ -1,96 +1,82 @@
-import React, { useEffect, useState, useRef } from "react";
-import * as G from "../../../styles/graph/graph";
-import usePost from "../../../hooks/usePost";
-import CHATBOT from "../../../assets/images/graph/chatbot.png";
-import CLOSE from "../../../assets/images/header/close.png";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import * as G from "../../../styles/graph/graph";
+import CHATBOT from "../../../assets/images/graph/chatbot.png";
+import CLOSE from "../../../assets/images/header/close.png";
+import useChatSession from "./useChatSession";
+
+const renderMessageBody = (message) => {
+  if (message.from === "bot" && message.status === "pending") {
+    const loadingText = message.text || "답변 생성 중이에요..";
+
+    return (
+      <G.ChatLoadingP>
+        {loadingText.split("").map((char, index) => (
+          <span key={`${message.id}-${index}`}>
+            {char === " " ? "\u00A0" : char}
+          </span>
+        ))}
+      </G.ChatLoadingP>
+    );
+  }
+
+  return (
+    <ReactMarkdown
+      rehypePlugins={[rehypeRaw]}
+      components={{
+        p: (props) => <G.MarkdownP {...props} />,
+        ul: (props) => <G.MarkdownUL {...props} />,
+        li: (props) => <G.MarkdownLI {...props} />,
+        h1: (props) => <G.MarkdownH1 {...props} />,
+        h2: (props) => <G.MarkdownH2 {...props} />,
+        h3: (props) => <G.MarkdownH3 {...props} />,
+        details: (props) => <G.MarkdownDetails {...props} />,
+        summary: (props) => <G.MarkdownSummary {...props} />,
+      }}
+    >
+      {message.text}
+    </ReactMarkdown>
+  );
+};
 
 export default function Chatbot({ setIsClickChatbotBtn, isVisible }) {
   const { id } = useParams();
   const [input, setInput] = useState("");
   const [mode, setMode] = useState("rag");
   const [isComposing, setIsComposing] = useState(false);
-  const loadingText = "답변 생성 중이에요..";
   const bottomRef = useRef(null);
-  const [visibleChunks, setVisibleChunks] = useState({});
-
-  const [messages, setMessages] = useState(() => {
-    const savedMessages = sessionStorage.getItem(`chatbot_graph_${id}`);
-    return savedMessages
-      ? JSON.parse(savedMessages)
-      : [{ from: "bot", text: "안녕하세요! 궁금한 게 있으신가요?" }];
+  const { messages, isPending, sendMessage } = useChatSession({
+    graphId: id,
+    mode,
   });
 
-  const url =
-    mode === "default" ? `/chatbot/${id}` : `/chatbot/${id}?mode=${mode}`;
-  const { post, loading, error } = usePost(url);
-  const { post: postOriginal } = usePost(`/chatbot/${id}/original`);
-  const { post: postSummary } = usePost(`/chatbot/${id}/summary`);
-
   useEffect(() => {
-    sessionStorage.setItem(`chatbot_graph_${id}`, JSON.stringify(messages));
-  }, [messages, id]);
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const handleCloseClick = () => {
     setIsClickChatbotBtn(false);
   };
 
   const handleSubmit = async () => {
-    if (!input.trim() || loading) return;
-    const userInput = input;
+    const userInput = input.trim();
+
+    if (!userInput || isPending) {
+      return;
+    }
 
     setInput("");
-
-    setMessages((prev) => [...prev, { from: "user", text: userInput }]);
-
-    try {
-      const result = await post({
-        isNewChat: messages.length === 1,
-        chatContent: userInput,
-      });
-
-      const reply = result.data?.chatContent || "응답 오류";
-      let retrievedTriples = [];
-      if (result.data?.retrievedTriples) {
-        retrievedTriples = result.data?.retrievedTriples;
-      }
-      console.log("retrievedTriples:", retrievedTriples);
-      setMessages((prev) => [
-        ...prev,
-        {
-          from: "bot",
-          text: reply,
-          retrievedTriples: retrievedTriples || [],
-        },
-      ]);
-    } catch (err) {
-      setMessages((prev) => [...prev, { from: "bot", text: "에러 발생!" }]);
-    }
-  };
-
-  // 챗봇 전송 후 하단으로 이동
-  useEffect(() => {
-    sessionStorage.setItem(`chatbot_graph_${id}`, JSON.stringify(messages));
-
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  const toggleChunkVisibility = (index) => {
-    setVisibleChunks((prevState) => ({
-      ...prevState,
-      [index]: !prevState[index],
-    }));
+    await sendMessage(userInput);
   };
 
   return (
     <G.ChatbotLayout isVisible={isVisible}>
       <G.ChatbotContainer>
         <G.ChatbotHeader>
-          {/* <G.HeaderLeft> */}
           <G.CommonButtonImg
             style={{ width: "2vw", height: "2vw" }}
             src={CHATBOT}
@@ -112,7 +98,6 @@ export default function Chatbot({ setIsClickChatbotBtn, isVisible }) {
               OFF
             </G.ChatModeButton>
           </G.ChatControlItem>
-          {/* </G.HeaderLeft> */}
 
           <G.CommonButtonImg
             style={{ width: "2vw", height: "2vw", cursor: "pointer" }}
@@ -123,37 +108,15 @@ export default function Chatbot({ setIsClickChatbotBtn, isVisible }) {
         </G.ChatbotHeader>
 
         <G.ChatContent>
-          {messages.map((msg, i) => (
-            <G.ChatBox key={i} from={msg.from}>
-              {/*{console.log("msg.mode:", msg.mode)}*/}
-              {/*{console.log("msg.text:", msg.text)}*/}
-
-              <ReactMarkdown
-                rehypePlugins={[rehypeRaw]}
-                components={{
-                  p: (props) => <G.MarkdownP {...props} />,
-                  ul: (props) => <G.MarkdownUL {...props} />,
-                  li: (props) => <G.MarkdownLI {...props} />,
-                  h1: (props) => <G.MarkdownH1 {...props} />,
-                  h2: (props) => <G.MarkdownH2 {...props} />,
-                  h3: (props) => <G.MarkdownH3 {...props} />,
-                  details: (props) => <G.MarkdownDetails {...props} />,
-                  summary: (props) => <G.MarkdownSummary {...props} />,
-                }}
-              >
-                {msg.text}
-              </ReactMarkdown>
-              {/* {msg.retrievedChunks?.map((chunk, index) => (
-                <div key={index}>
-                  {typeof chunk === "object" ? JSON.stringify(chunk) : chunk}
-                </div>
-              ))} */}
-              {msg.retrievedTriples?.length > 0 && (
+          {messages.map((message) => (
+            <G.ChatBox key={message.id} from={message.from}>
+              {renderMessageBody(message)}
+              {message.retrievedTriples?.length > 0 && (
                 <details>
                   <G.ToggleButton>사용된 데이터 보기</G.ToggleButton>
                   <G.ChunkBox>
-                    {msg.retrievedTriples.map((chunk, index) => (
-                      <G.ChunkP key={index}>
+                    {message.retrievedTriples.map((chunk, index) => (
+                      <G.ChunkP key={`${message.id}-triple-${index}`}>
                         {typeof chunk === "object"
                           ? JSON.stringify(chunk)
                           : chunk}
@@ -164,54 +127,23 @@ export default function Chatbot({ setIsClickChatbotBtn, isVisible }) {
               )}
             </G.ChatBox>
           ))}
-          {loading && (
-            <G.ChatBox from="bot">
-              <G.ChatLoadingP>
-                {loadingText.split("").map((char, i) => (
-                  <span key={i}>{char === " " ? "\u00A0" : char}</span>
-                ))}
-              </G.ChatLoadingP>
-            </G.ChatBox>
-          )}
           <div ref={bottomRef} />
         </G.ChatContent>
-
-        {/* <G.ChatControlGroup>
-        <G.ChatControlItem>
-          <G.ChatActionButtons>
-            <button onClick={async () => {
-              const result = await postOriginal({});
-              const reply = result.data?.chatContent || "원문 불러오기 실패";
-              setMessages((prev) => [...prev, {
-                from: "bot",
-                text: reply,
-                mode: mode, // 모드 추가
-              }]);
-            }}>원문 보기</button>
-
-            <button onClick={async () => {
-              const result = await postSummary({});
-              const reply = result.data?.chatContent || "요약 불러오기 실패";
-              setMessages(prev => [...prev, { from: "bot", text: reply }]);
-            }}>요약 보기</button>
-          </G.ChatActionButtons>
-        </G.ChatControlItem>
-      </G.ChatControlGroup> */}
 
         <G.ChatInputContainer>
           <G.ChatInput
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(event) => setInput(event.target.value)}
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={() => setIsComposing(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !isComposing && !loading) {
-                e.preventDefault();
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !isComposing && !isPending) {
+                event.preventDefault();
                 handleSubmit();
               }
             }}
-          ></G.ChatInput>
-          <G.ChatSubmitButton onClick={handleSubmit} disabled={loading}>
+          />
+          <G.ChatSubmitButton onClick={handleSubmit} disabled={isPending}>
             전송
           </G.ChatSubmitButton>
         </G.ChatInputContainer>

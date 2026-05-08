@@ -10,27 +10,26 @@ const RoadWrapper = styled.div`
   position: relative;
 `;
 
-const RoadImage = styled(motion.img)`
-  width: 100%;
-  height: auto;
-  max-height: 150vw;
-  object-fit: contain;
-  pointer-events: none;
-  position: absolute;
-  z-index: 0;
+// const RoadImage = styled(motion.img)`
+//   width: 100%;
+//   height: auto;
+//   max-height: 150vw;
+//   object-fit: contain;
+//   pointer-events: none;
+//   position: absolute;
+//   z-index: 0;
 
-  /* top 속성 대신 transform으로 이동하여 리플로우 방지 */
-  transform: translateY(${({ top }) => top || "0"});
-  left: ${({ left }) => left || "0"};
-  right: ${({ right }) => right || "auto"};
-  will-change: transform, opacity; /* GPU Hint 추가 */
-`;
+//   /* top 속성 대신 transform으로 이동하여 리플로우 방지 */
+//   transform: translateY(${({ top }) => top || "0"});
+//   left: ${({ left }) => left || "0"};
+//   right: ${({ right }) => right || "auto"};
+//   will-change: transform, opacity; /* GPU Hint 추가 */
+// `;
 
 const ContentWrapper = styled.div`
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  // top: 0;
+  // left: 0;
   width: 100%;
   height: 100%;
   z-index: 1;

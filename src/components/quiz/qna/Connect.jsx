@@ -61,14 +61,9 @@ export default function Connect() {
     }
   }, [graphId, modeName]);
 
-  useEffect(() => {
-    console.log(data);
-    console.log(data?.data?.quizzes?.knowledgeGraph.nodes);
-  }, [data]);
-
   const quizList = data?.data?.quizzes?.quizList || [];
   const knowledgeGraph = data?.data?.quizzes?.knowledgeGraph;
-  
+
   // 노드 처리
   const processedNodes = useMemo(() => {
     if (!knowledgeGraph) return [];
@@ -78,10 +73,6 @@ export default function Connect() {
       label: node.id === questionTargetId ? "?" : node.label, // 문제 노드 아이디와 일치하면 ? 표시
     }));
   }, [knowledgeGraph, quizList, currentQuizNum]);
-
-  useEffect(() => {
-    console.log("processedNodes", processedNodes);
-  }, [processedNodes]);
 
   // 통신 연결 시 주석 해제
   useEffect(() => {

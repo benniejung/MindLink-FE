@@ -61,7 +61,6 @@ const Home = () => {
   return (
     <S.HomeLayout>
       <S.BackgroundImg src={MAINBG} alt="배경" />
-
       <S.HomeFirstPage ref={firstPageRef}>
         <Header />
         <S.HeaderBottomSection>
