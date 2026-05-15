@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { preload } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import * as S from "../../styles/home/home";
 import Header from "../../components/header/header";
@@ -14,6 +15,7 @@ import LOGOIcon1 from "../../assets/images/home/icon1.png";
 import LOGOIcon2 from "../../assets/images/home/icon2.png";
 
 const Home = () => {
+
   const firstPageRef = useRef(null);
   const secondPageRef = useRef(null);
   const thirdPageRef = useRef(null);
